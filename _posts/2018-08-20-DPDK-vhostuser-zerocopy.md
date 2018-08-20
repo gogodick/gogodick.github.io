@@ -40,7 +40,7 @@ rte_vhost_dequeue_burst() uses copy_desc_to_mbuf() to perform zero copy operatio
 		err = copy_desc_to_mbuf(dev, vq, desc, sz, pkts[i], idx,
 					mbuf_pool);
 ```
-In copy_desc_to_mbuf(), if dequeue_zero_copy is enabled, descriptor address would be used as mbuf address, that's "so called" zero copy operation. Otherwise, rte_memcpy() is used for memory copy operation.
+In copy_desc_to_mbuf(), if dequeue_zero_copy is enabled, descriptor address would be used as mbuf address, that's so-called zero copy operation. Otherwise, rte_memcpy() is used for memory copy operation.
 ```
 		if (unlikely(dev->dequeue_zero_copy && (hpa = gpa_to_hpa(dev,
 					desc_gaddr + desc_offset, cpy_len)))) {
@@ -77,3 +77,31 @@ In copy_desc_to_mbuf(), if dequeue_zero_copy is enabled, descriptor address woul
 			}
 		}
 ```
+## 2.2. Monitoring Mbuf
+At first, use a linked list to store used mbuf, and update refcnt to avoid wrongly releasing mbuf.
+```
+		if (unlikely(dev->dequeue_zero_copy)) {
+			struct zcopy_mbuf *zmbuf;
+
+			zmbuf = get_zmbuf(vq);
+			if (!zmbuf) {
+				rte_pktmbuf_free(pkts[i]);
+				free_ind_table(idesc);
+				break;
+			}
+			zmbuf->mbuf = pkts[i];
+			zmbuf->desc_idx = desc_indexes[i];
+
+			/*
+			 * Pin lock the mbuf; we will check later to see
+			 * whether the mbuf is freed (when we are the last
+			 * user) or not. If that's the case, we then could
+			 * update the used ring safely.
+			 */
+			rte_mbuf_refcnt_update(pkts[i], 1);
+
+			vq->nr_zmbuf += 1;
+			TAILQ_INSERT_TAIL(&vq->zmbuf_list, zmbuf, next);
+		}
+```
+And then, ...
