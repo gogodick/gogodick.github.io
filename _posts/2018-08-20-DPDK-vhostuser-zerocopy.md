@@ -9,4 +9,4 @@ mathjax: true
 ---
 
 
-![vhost architecture](https://github.com/gogodick/gogodick.github.io/blob/master/img/vhost_architecture.png)
+![vhost architecture](https://raw.githubusercontent.com/gogodick/gogodick.github.io/master/img/vhost_architecture.png)
