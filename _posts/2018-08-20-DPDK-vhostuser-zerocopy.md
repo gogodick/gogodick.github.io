@@ -20,7 +20,15 @@ And I will investigate the detailed implementation in the next section.
 
 # 2. Implementation Code
 
-There's a flag for vhost driver:
+There's a flag for vhost-user dequeue zero copy.
 ```
 #define RTE_VHOST_USER_DEQUEUE_ZERO_COPY	(1ULL << 2)
+```
+And we should enable this flag while registering vhost driver.
+```
+/**
+ * Register vhost driver. path could be different for multiple
+ * instance support.
+ */
+int rte_vhost_driver_register(const char *path, uint64_t flags);
 ```
