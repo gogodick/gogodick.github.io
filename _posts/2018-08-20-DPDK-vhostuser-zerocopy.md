@@ -146,6 +146,34 @@ There are three possible configuration to avoid vring starving:
 * Use smaller tx_free_threshold.
 * Increase the size of guest Tx used vring.
 
-PMD TX API needs to release mbuf timely, so that guest TX used vring will not be starved, but performance will be poor. So we need adjust these configurations and find a balance.
+PMD TX API needs to release mbuf timely, so that guest TX used vring will not be starved, but performance will be poor. Therefore we need adjust these configurations and find a balance.
+## 3.3. Deep Copy Issue
+I uses DPDK 17.11 to test VM2NIC case, and the traffic breaks immediately. After debug I find vq->zmbuf_list is corrupted, and it's impossible to insert any element. 
 
-## 3.3. Bug
+Please read below code (At lib/librte_vhost/vhost_user.c) for the root cause, it just copy old_vq to vq.
+```
+	if (oldnode != newnode) {
+		RTE_LOG(INFO, VHOST_CONFIG,
+			"reallocate vq from %d to %d node\n", oldnode, newnode);
+		vq = rte_malloc_socket(NULL, sizeof(*vq), 0, newnode);
+		if (!vq)
+			return dev;
+
+		memcpy(vq, old_vq, sizeof(*vq));
+		rte_free(old_vq);
+	}
+```
+For vq->zmbuf_list, tqh_last should point to the first element. But tqh_last is using wrong address after above memory operation.
+```
+#define TAILQ_FIRST(head)   ((head)->tqh_first)
+#define TAILQ_INIT(head) do {                       \
+    TAILQ_FIRST((head)) = NULL;                 \
+    (head)->tqh_last = &TAILQ_FIRST((head));            \
+    QMD_TRACE_HEAD(head);                       \
+} while (0)
+```
+This issue is fixed in DPDK 18.02 release.
+```
+When vhost reallocate dev and vq for NUMA enabled case, it doesn't perform deep copy, which lead to 1) zmbuf list not valid 2) remote memory access. 
+This patch is to re-initlize the zmbuf list and also do the deep copy.
+```
