@@ -10,6 +10,3 @@ type: page
 {:toc}
 
 
-## Comments
-
-{% include comments.html %}
