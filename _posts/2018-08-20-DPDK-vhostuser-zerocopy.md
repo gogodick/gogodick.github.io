@@ -78,7 +78,7 @@ In copy_desc_to_mbuf(), if dequeue_zero_copy is enabled, descriptor address woul
 		}
 ```
 ## 2.2. Monitoring Mbuf
-At first, use a linked list to store used mbuf, and update refcnt to avoid wrongly releasing mbuf.
+At first, use a linked list to store used mbuf, and update refcnt to avoid wrongly releasing mbuf. And then, send mbuf to other interface.
 ```
 		if (unlikely(dev->dequeue_zero_copy)) {
 			struct zcopy_mbuf *zmbuf;
@@ -104,4 +104,33 @@ At first, use a linked list to store used mbuf, and update refcnt to avoid wrong
 			TAILQ_INSERT_TAIL(&vq->zmbuf_list, zmbuf, next);
 		}
 ```
-And then, ...
+After that, iterate this linked list, refcnt 1 means this mbuf is consumed, and this function will release mbuf, update vring and notify guest.
+```
+	if (unlikely(dev->dequeue_zero_copy)) {
+		struct zcopy_mbuf *zmbuf, *next;
+		int nr_updated = 0;
+
+		for (zmbuf = TAILQ_FIRST(&vq->zmbuf_list);
+		     zmbuf != NULL; zmbuf = next) {
+			next = TAILQ_NEXT(zmbuf, next);
+
+			if (mbuf_is_consumed(zmbuf->mbuf)) {
+				used_idx = vq->last_used_idx++ & (vq->size - 1);
+				update_used_ring(dev, vq, used_idx,
+						 zmbuf->desc_idx);
+				nr_updated += 1;
+
+				TAILQ_REMOVE(&vq->zmbuf_list, zmbuf, next);
+				restore_mbuf(zmbuf->mbuf);
+				rte_pktmbuf_free(zmbuf->mbuf);
+				put_zmbuf(zmbuf);
+				vq->nr_zmbuf -= 1;
+			}
+		}
+
+		update_used_idx(dev, vq, nr_updated);
+	}
+```
+## 2.3. Summary
+Vhost-user dequeue zero copy implementation uses shared memory as mbuf address, and DPDK application sends this mbuf to other interface. rte_vhost_dequeue_burst() has to wait for other PMD TX function to free mbuf, and then it can update vring and notify guest. Therefore, other PMD TX function needs to free mbuf timely, otherwise, guest Tx used vring may be starved. 
+# 3. Limitations and Issues
