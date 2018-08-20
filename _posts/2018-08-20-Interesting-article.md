@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Interesting artical"
+title:  "Interesting article"
 date:   2018-08-20 17:00:00
 categories: DPDK
 tags: DPDK virtio
