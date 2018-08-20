@@ -8,3 +8,5 @@ excerpt: Analyze the implementation of vhost zero copy mechanism
 mathjax: true
 ---
 
+
+![vhost architecture](https://github.com/gogodick/gogodick.github.io/blob/master/img/vhost_architecture.png)
