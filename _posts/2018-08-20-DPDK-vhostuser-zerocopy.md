@@ -163,7 +163,7 @@ Please read below code (At lib/librte_vhost/vhost_user.c) for the root cause, it
 		rte_free(old_vq);
 	}
 ```
-For vq->zmbuf_list, tqh_last should point to the first element. But tqh_last is using wrong address after above memory operation.
+For vq->zmbuf_list, tqh_last should point to the first element. But tqh_last is using wrong address after above memory copy operation.
 ```
 #define TAILQ_FIRST(head)   ((head)->tqh_first)
 #define TAILQ_INIT(head) do {                       \
@@ -174,6 +174,8 @@ For vq->zmbuf_list, tqh_last should point to the first element. But tqh_last is 
 ```
 This issue is fixed in DPDK 18.02 release.
 ```
-When vhost reallocate dev and vq for NUMA enabled case, it doesn't perform deep copy, which lead to 1) zmbuf list not valid 2) remote memory access. 
+When vhost reallocate dev and vq for NUMA enabled case, it doesn't perform deep copy, which lead to 
+1) zmbuf list not valid 
+2) remote memory access. 
 This patch is to re-initlize the zmbuf list and also do the deep copy.
 ```
