@@ -19,16 +19,21 @@ Therefore, DPDK vhost library has to transfer data between shared memory and DPD
 And I will investigate the detailed implementation in the next section.
 
 # 2. Implementation Code
-
-There's a flag for vhost-user dequeue zero copy.
+At first, there's a flag for vhost-user dequeue zero copy.
 ```
 #define RTE_VHOST_USER_DEQUEUE_ZERO_COPY	(1ULL << 2)
 ```
 And we should enable this flag while registering vhost driver.
 ```
-/**
- * Register vhost driver. path could be different for multiple
- * instance support.
- */
 int rte_vhost_driver_register(const char *path, uint64_t flags);
 ```
+Let's take a close look at below function.
+```
+uint16_t rte_vhost_dequeue_burst(int vid, uint16_t queue_id,
+	struct rte_mempool *mbuf_pool, struct rte_mbuf **pkts, uint16_t count);
+```
+This function gets guest buffers from the virtio device TX virtqueue, construct host mbufs, copies guest buffer content to host mbufs and store them in pkts to be processed.
+
+This function supports to use zero copy operation to replace memory copy operation, and it also monitors used mbuf and notify guest that vring is updated.
+
+## 2.1. Zero Copy
