@@ -141,7 +141,7 @@ I have introduced how to monitor used mbuf in previous section, this overhead is
 ## 3.2. VM2NIC
 DPDK programmer's guide suggests that guest Tx used vring may be starved if the PMD driver consume the mbuf but not release them timely.
 
-There are three possible configuration to avoid vring starving:
+There are three possible configurations to avoid vring starving:
 * The nb_tx_desc has to be small enough: <= 64 if virtio indirect feature is not enabled and <= 128 if it is enabled.
 * Use smaller tx_free_threshold.
 * Increase the size of guest Tx used vring.
