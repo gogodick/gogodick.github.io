@@ -17,7 +17,6 @@ For emulated device like vhost, there's no hardware to perform DMA operation. In
 Therefore, DPDK vhost library has to transfer data between shared memory and DPDK mbuf. For this reason, vhost-user dequeue zero copy is introduced improve the performance from DPDK 16.11 release. Please note that this feature is only used for traffic from vhost-user (dequeue).
 
 And I will investigate the detailed implementation in the next section.
-
 # 2. Implementation Code
 At first, there's a flag for vhost-user dequeue zero copy.
 ```
@@ -35,5 +34,46 @@ uint16_t rte_vhost_dequeue_burst(int vid, uint16_t queue_id,
 This function gets guest buffers from the virtio device TX virtqueue, construct host mbufs, copies guest buffer content to host mbufs and store them in pkts to be processed.
 
 This function supports to use zero copy operation to replace memory copy operation, and it also monitors used mbuf and notify guest that vring is updated.
-
 ## 2.1. Zero Copy
+rte_vhost_dequeue_burst() uses copy_desc_to_mbuf() to perform zero copy operation or memory copy operation.
+```
+		err = copy_desc_to_mbuf(dev, vq, desc, sz, pkts[i], idx,
+					mbuf_pool);
+```
+In copy_desc_to_mbuf(), if dequeue_zero_copy is enabled, descriptor address would be used as mbuf address, that's "so called" zero copy operation. Otherwise, rte_memcpy() is used for memory copy operation.
+```
+		if (unlikely(dev->dequeue_zero_copy && (hpa = gpa_to_hpa(dev,
+					desc_gaddr + desc_offset, cpy_len)))) {
+			cur->data_len = cpy_len;
+			cur->data_off = 0;
+			cur->buf_addr = (void *)(uintptr_t)(desc_addr
+				+ desc_offset);
+			cur->buf_iova = hpa;
+
+			/*
+			 * In zero copy mode, one mbuf can only reference data
+			 * for one or partial of one desc buff.
+			 */
+			mbuf_avail = cpy_len;
+		} else {
+			if (likely(cpy_len > MAX_BATCH_LEN ||
+				   copy_nb >= vq->size ||
+				   (hdr && cur == m) ||
+				   desc->len != desc_chunck_len)) {
+				rte_memcpy(rte_pktmbuf_mtod_offset(cur, void *,
+								   mbuf_offset),
+					   (void *)((uintptr_t)(desc_addr +
+								desc_offset)),
+					   cpy_len);
+			} else {
+				batch_copy[copy_nb].dst =
+					rte_pktmbuf_mtod_offset(cur, void *,
+								mbuf_offset);
+				batch_copy[copy_nb].src =
+					(void *)((uintptr_t)(desc_addr +
+							     desc_offset));
+				batch_copy[copy_nb].len = cpy_len;
+				copy_nb++;
+			}
+		}
+```
