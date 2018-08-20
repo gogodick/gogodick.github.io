@@ -14,7 +14,7 @@ For emulated device like vhost, there's no hardware to perform DMA operation. In
 
 ![vhost architecture](https://raw.githubusercontent.com/gogodick/gogodick.github.io/master/img/vhost_architecture.png)
 
-Therefore, DPDK vhost library has to transfer data between shared memory and DPDK mbuf. For this reason, vhost-user dequeue zero copy is introduced improve the performance from DPDK 16.11 release. Please note that this feature is only used for traffic from vhost-user (dequeue).
+Therefore, DPDK vhost library has to transfer data between shared memory and DPDK mbuf. For this reason, vhost-user dequeue zero copy is introduced to improve the performance from DPDK 16.11 release. Please note that this feature is only used for traffic from vhost-user (dequeue).
 
 And I will investigate the detailed implementation in the next section.
 # 2. Implementation Code
@@ -134,3 +134,7 @@ After that, iterate this linked list, refcnt 1 means this mbuf is consumed, and 
 ## 2.3. Summary
 Vhost-user dequeue zero copy implementation uses shared memory as mbuf address, and DPDK application sends this mbuf to other interface. rte_vhost_dequeue_burst() has to wait for other PMD TX function to free mbuf, and then it can update vring and notify guest. Therefore, other PMD TX function needs to free mbuf timely, otherwise, guest Tx used vring may be starved. 
 # 3. Limitations and Issues
+## 3.1. Small Packets
+DPDK programmer's guide suggests that zero copy is not good for small packets (typically for packet size below 512).
+
+I have introduced how to monitor used mbuf in previous section, this overhead is considerable for small packet, and in this case memory copy operation is faster then zero copy operation.
