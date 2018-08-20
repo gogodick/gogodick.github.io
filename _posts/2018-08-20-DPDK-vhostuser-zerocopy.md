@@ -14,6 +14,13 @@ For emulated device like vhost, there's no hardware to perform DMA operation. In
 
 ![vhost architecture](https://raw.githubusercontent.com/gogodick/gogodick.github.io/master/img/vhost_architecture.png)
 
-Therefore, DPDK vhost library has to transfer data between shared memory and DPDK mbuf. For this reason, vhost-user dequeue zero copy is introduced improve the performance from DPDK 16.11 release. And I will investigate the detailed implementation in the next section.
+Therefore, DPDK vhost library has to transfer data between shared memory and DPDK mbuf. For this reason, vhost-user dequeue zero copy is introduced improve the performance from DPDK 16.11 release. Please note that this feature is only used for traffic from vhost-user (dequeue).
+
+And I will investigate the detailed implementation in the next section.
 
 # 2. Implementation Code
+
+There's a flag for vhost driver:
+```
+#define RTE_VHOST_USER_DEQUEUE_ZERO_COPY	(1ULL << 2)
+```
