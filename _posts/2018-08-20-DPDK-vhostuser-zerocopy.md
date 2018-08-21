@@ -147,8 +147,7 @@ Vhost-user dequeue zero copy implementation uses shared memory as mbuf address, 
 DPDK programmer's guide suggests that zero copy is not good for small packets (typically for packet size below 512).  
 I have introduced how to monitor used mbuf in previous section, this overhead is considerable for small packet, and in this case memory copy operation is faster then zero copy operation.
 ## 3.2. VM2NIC
-DPDK programmer's guide suggests that guest Tx used vring may be starved if the PMD driver consume the mbuf but not release them timely.
-
+DPDK programmer's guide suggests that guest Tx used vring may be starved if the PMD driver consume the mbuf but not release them timely.  
 There are three possible configurations to avoid vring starving:
 * The nb_tx_desc has to be small enough: <= 64 if virtio indirect feature is not enabled and <= 128 if it is enabled.
 * Use smaller tx_free_threshold.
@@ -156,7 +155,7 @@ There are three possible configurations to avoid vring starving:
 
 PMD TX API needs to release mbuf timely, so that guest TX used vring will not be starved, but performance will be poor. Therefore we need adjust these configurations and find a balance.
 ## 3.3. Deep Copy Issue
-I uses DPDK 17.11 to test VM2NIC case, and the traffic breaks immediately. After debug I find vq->zmbuf_list is corrupted, and it's impossible to insert any element. 
+I uses DPDK 17.11 to test VM2NIC case, and the traffic breaks immediately. After debug I find vq->zmbuf_list is corrupted, and it's impossible to insert any element.
 
 Please read below code (At lib/librte_vhost/vhost_user.c) for the root cause, it just copy old_vq to vq.
 ```
