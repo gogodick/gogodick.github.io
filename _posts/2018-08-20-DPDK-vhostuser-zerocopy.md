@@ -50,6 +50,7 @@ Virtio front end is using guest phisical address (GPA), and copy_desc_to_mbuf() 
 copy_desc_to_mbuf() will check the dequeue_zero_copy flag:
 * If dequeue_zero_copy is enabled, host virtual address (HVA) and host phisical address (HPA) would be used as mbuf address, that's so-called zero copy operation. 
 * Otherwise, rte_memcpy() is used to copy from host virtual address (HVA) to mbuf.
+
 ```
 		if (unlikely(dev->dequeue_zero_copy && (hpa = gpa_to_hpa(dev,
 					desc_gaddr + desc_offset, cpy_len)))) {
@@ -144,10 +145,12 @@ After that, iterate this linked list, refcnt 1 means this mbuf is consumed, and 
 Vhost-user dequeue zero copy implementation uses shared memory as mbuf address, and DPDK application sends this mbuf to other interface. rte_vhost_dequeue_burst() has to wait for other PMD TX function to free mbuf, and then it can update vring and notify guest. Therefore, other PMD TX function needs to free mbuf timely, otherwise, guest Tx used vring may be starved. 
 # 3. Limitations and Issues
 ## 3.1. Small Packets
-DPDK programmer's guide suggests that zero copy is not good for small packets (typically for packet size below 512).  
+DPDK programmer's guide suggests that zero copy is not good for small packets (typically for packet size below 512).
+
 I have introduced how to monitor used mbuf in previous section, this overhead is considerable for small packet, and in this case memory copy operation is faster then zero copy operation.
 ## 3.2. VM2NIC
-DPDK programmer's guide suggests that guest Tx used vring may be starved if the PMD driver consume the mbuf but not release them timely.  
+DPDK programmer's guide suggests that guest Tx used vring may be starved if the PMD driver consume the mbuf but not release them timely.
+
 There are three possible configurations to avoid vring starving:
 * The nb_tx_desc has to be small enough: <= 64 if virtio indirect feature is not enabled and <= 128 if it is enabled.
 * Use smaller tx_free_threshold.
