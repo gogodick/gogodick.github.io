@@ -147,7 +147,7 @@ Vhost-user dequeue zero copy implementation uses shared memory as mbuf address, 
 ## 3.1. Small Packets
 DPDK programmer's guide suggests that zero copy is not good for small packets (typically for packet size below 512).
 
-I have introduced how to monitor used mbuf in previous section, this overhead is considerable for small packet, and in this case memory copy operation is faster then zero copy operation.
+Section 2.2 has introduced how to monitor used mbuf in previous section, this overhead is considerable for small packet, and in this case memory copy operation is faster then zero copy operation.
 ## 3.2. VM2NIC
 DPDK programmer's guide suggests that guest Tx used vring may be starved if the PMD driver consume the mbuf but not release them timely.
 
