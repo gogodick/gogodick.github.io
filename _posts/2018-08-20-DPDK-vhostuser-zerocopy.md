@@ -40,7 +40,7 @@ rte_vhost_dequeue_burst() uses copy_desc_to_mbuf() to perform zero copy operatio
 		err = copy_desc_to_mbuf(dev, vq, desc, sz, pkts[i], idx,
 					mbuf_pool);
 ```
-virtio front end is using guest phisical address (GPA), and copy_desc_to_mbuf() has to translate this address to host virtual address.
+Virtio front end is using guest phisical address (GPA), and copy_desc_to_mbuf() has to translate this address to host virtual address.
 ```
 	desc_addr = vhost_iova_to_vva(dev,
 					vq, desc_gaddr,
@@ -49,7 +49,7 @@ virtio front end is using guest phisical address (GPA), and copy_desc_to_mbuf() 
 ```
 copy_desc_to_mbuf() will check the dequeue_zero_copy flag:
 * If dequeue_zero_copy is enabled, host virtual address (HVA) and host phisical address (HPA) would be used as mbuf address, that's so-called zero copy operation. 
-* Otherwise, rte_memcpy() is used for memory copy operation.
+* Otherwise, rte_memcpy() is used to copy from host virtual address (HVA) to mbuf.
 ```
 		if (unlikely(dev->dequeue_zero_copy && (hpa = gpa_to_hpa(dev,
 					desc_gaddr + desc_offset, cpy_len)))) {
