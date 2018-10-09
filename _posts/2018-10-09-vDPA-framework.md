@@ -120,6 +120,7 @@ struct rte_vdpa_dev_ops ifcvf_ops = {
 			ifcvf_used_ring_log(hw, i, log_buf);
 	}
 ```
+
 Above code shows that, hardware marks dirty memory pages for only packet buffer, and ifcvf_used_ring_log() is used to mark the used ring as dirty after device stops.
 ## 3.2. VRING state report/restore
 * ifc driver uses ifcvf_hw_enable() to restore VRING state and start hardware, and calling sequence is: update_datapath()->vdpa_ifcvf_start()->ifcvf_start_hw()->ifcvf_hw_enable()
