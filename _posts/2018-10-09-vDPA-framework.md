@@ -125,6 +125,7 @@ Above code shows that, hardware marks dirty memory pages for only packet buffer,
 ## 3.2. VRING state report/restore
 * ifc driver uses ifcvf_hw_enable() to restore VRING state and start hardware, and calling sequence is: update_datapath()->vdpa_ifcvf_start()->ifcvf_start_hw()->ifcvf_hw_enable()
 * ifc driver uses ifcvf_hw_disable() to stop hardware and read VRING state, and calling sequence is: update_datapath()->vdpa_ifcvf_stop()->ifcvf_stop_hw()->ifcvf_hw_disable()
+
 ## 3.3. Kick RARP
 ifc driver does not support VHOST_USER_PROTOCOL_F_RARP.
 ```
