@@ -78,6 +78,22 @@ rte_vdpa_get_device(int did);
 # 3. Live migration
 There is a new device driver at drivers/net/ifc, this device driver supports vDPA framework, and this device shoule be an intel FPGA device.
 And we will use this device driver to analyze the implementation of live migration.
+ifc driver supports below ops:
+```
+struct rte_vdpa_dev_ops ifcvf_ops = {
+	.get_queue_num = ifcvf_get_queue_num,
+	.get_features = ifcvf_get_vdpa_features,
+	.get_protocol_features = ifcvf_get_protocol_features,
+	.dev_conf = ifcvf_dev_config,
+	.dev_close = ifcvf_dev_close,
+	.set_vring_state = NULL,
+	.set_features = ifcvf_set_features,
+	.migration_done = NULL,
+	.get_vfio_group_fd = ifcvf_get_vfio_group_fd,
+	.get_vfio_device_fd = ifcvf_get_vfio_device_fd,
+	.get_notify_area = ifcvf_get_notify_area,
+};
+```
 ## 3.1. Dirty page logging
 * ifc driver uses ifcvf_enable_logging() to start dirty page logging, and calling sequence is: ifcvf_set_features()->ifcvf_enable_logging()
 ```
@@ -109,3 +125,17 @@ Above code shows that, hardware marks dirty memory pages for only packet buffer,
 * ifc driver uses ifcvf_hw_enable() to restore VRING state and start hardware, and calling sequence is: update_datapath()->vdpa_ifcvf_start()->ifcvf_start_hw()->ifcvf_hw_enable()
 * ifc driver uses ifcvf_hw_disable() to stop hardware and read VRING state, and calling sequence is: update_datapath()->vdpa_ifcvf_stop()->ifcvf_stop_hw()->ifcvf_hw_disable()
 ## 3.3. Kick RARP
+ifc driver does not support VHOST_USER_PROTOCOL_F_RARP.
+```
+#define VDPA_SUPPORTED_PROTOCOL_FEATURES \
+		(1ULL << VHOST_USER_PROTOCOL_F_REPLY_ACK | \
+		 1ULL << VHOST_USER_PROTOCOL_F_SLAVE_REQ | \
+		 1ULL << VHOST_USER_PROTOCOL_F_SLAVE_SEND_FD | \
+		 1ULL << VHOST_USER_PROTOCOL_F_HOST_NOTIFIER | \
+		 1ULL << VHOST_USER_PROTOCOL_F_LOG_SHMFD)
+```
+migration_done() is used for destination operations when migration done, but ifc driver does not support this API.
+```
+IFC VF doesn't support RARP packet generation, virtio frontend supporting VIRTIO_NET_F_GUEST_ANNOUNCE feature can help to do that.
+```
+We can conclude that ifc device does not support RARP, and we can use VIRTIO_NET_F_GUEST_ANNOUNCE at frontend instead.
