@@ -77,7 +77,7 @@ rte_vdpa_get_device(int did);
 ```
 # 3. Live migration
 There is a new device driver at drivers/net/ifc, this device driver supports vDPA framework, and this device shoule be an intel FPGA device.
-And we will use this device driver to analyze the implementation of live migration.
+
 ifc driver supports below ops:
 ```
 struct rte_vdpa_dev_ops ifcvf_ops = {
@@ -94,6 +94,8 @@ struct rte_vdpa_dev_ops ifcvf_ops = {
 	.get_notify_area = ifcvf_get_notify_area,
 };
 ```
+
+And we will use this device driver to analyze the implementation of live migration.
 ## 3.1. Dirty page logging
 * ifc driver uses ifcvf_enable_logging() to start dirty page logging, and calling sequence is: ifcvf_set_features()->ifcvf_enable_logging()
 ```
