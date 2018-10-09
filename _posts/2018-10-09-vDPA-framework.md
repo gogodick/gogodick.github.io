@@ -76,10 +76,10 @@ struct rte_vdpa_device * __rte_experimental
 rte_vdpa_get_device(int did);
 ```
 # 3. Live migration
-There is a new device driver at drivers/net/ifc, this device driver supports vDPA framework, and this device shoule be a intel FPGA device.
+There is a new device driver at drivers/net/ifc, this device driver supports vDPA framework, and this device shoule be an intel FPGA device.
 And we will use this device driver to analyze the implementation of live migration.
 ## 3.1. Dirty page logging
-ifc driver uses ifcvf_enable_logging() to start dirty page logging, and calling sequence is: ifcvf_set_features()->ifcvf_enable_logging()
+* ifc driver uses ifcvf_enable_logging() to start dirty page logging, and calling sequence is: ifcvf_set_features()->ifcvf_enable_logging()
 ```
 	if (RTE_VHOST_NEED_LOG(features)) {
 		rte_vhost_get_log_base(vid, &log_base, &log_size);
@@ -88,7 +88,7 @@ ifc driver uses ifcvf_enable_logging() to start dirty page logging, and calling 
 		ifcvf_enable_logging(&internal->hw, IFCVF_LOG_BASE, log_size);
 	}
 ```
-ifc driver uses ifcvf_disable_logging() to stop dirty page logging, and calling sequence is: ifcvf_disable_logging()->ifcvf_disable_logging()->ifcvf_disable_logging()
+* ifc driver uses ifcvf_disable_logging() to stop dirty page logging, and calling sequence is: update_datapath()->vdpa_ifcvf_stop()->ifcvf_disable_logging()
 ```
 	if (RTE_VHOST_NEED_LOG(features)) {
 		ifcvf_disable_logging(hw);
@@ -106,5 +106,6 @@ ifc driver uses ifcvf_disable_logging() to stop dirty page logging, and calling 
 ```
 Above code shows that, hardware marks dirty memory pages for only packet buffer, and ifcvf_used_ring_log() is used to mark the used ring as dirty after device stops.
 ## 3.2. VRING state report/restore
-
+* ifc driver uses ifcvf_hw_enable() to restore VRING state and start hardware, and calling sequence is: update_datapath()->vdpa_ifcvf_start()->ifcvf_start_hw()->ifcvf_hw_enable()
+* ifc driver uses ifcvf_hw_disable() to stop hardware and read VRING state, and calling sequence is: update_datapath()->vdpa_ifcvf_stop()->ifcvf_stop_hw()->ifcvf_hw_disable()
 ## 3.3. Kick RARP
