@@ -79,7 +79,32 @@ rte_vdpa_get_device(int did);
 There is a new device driver at drivers/net/ifc, this device driver supports vDPA framework, and this device shoule be a intel FPGA device.
 And we will use this device driver to analyze the implementation of live migration.
 ## 3.1. Dirty page logging
-
+ifc driver uses ifcvf_enable_logging() to start dirty page logging, and calling sequence is: ifcvf_set_features()->ifcvf_enable_logging()
+```
+	if (RTE_VHOST_NEED_LOG(features)) {
+		rte_vhost_get_log_base(vid, &log_base, &log_size);
+		rte_vfio_container_dma_map(internal->vfio_container_fd,
+				log_base, IFCVF_LOG_BASE, log_size);
+		ifcvf_enable_logging(&internal->hw, IFCVF_LOG_BASE, log_size);
+	}
+```
+ifc driver uses ifcvf_disable_logging() to stop dirty page logging, and calling sequence is: ifcvf_disable_logging()->ifcvf_disable_logging()->ifcvf_disable_logging()
+```
+	if (RTE_VHOST_NEED_LOG(features)) {
+		ifcvf_disable_logging(hw);
+		rte_vhost_get_log_base(internal->vid, &log_base, &log_size);
+		rte_vfio_container_dma_unmap(internal->vfio_container_fd,
+				log_base, IFCVF_LOG_BASE, log_size);
+		/*
+		 * IFCVF marks dirty memory pages for only packet buffer,
+		 * SW helps to mark the used ring as dirty after device stops.
+		 */
+		log_buf = (uint8_t *)(uintptr_t)log_base;
+		for (i = 0; i < hw->nr_vring; i++)
+			ifcvf_used_ring_log(hw, i, log_buf);
+	}
+```
+Above code shows that, hardware marks dirty memory pages for only packet buffer, and ifcvf_used_ring_log() is used to mark the used ring as dirty after device stops.
 ## 3.2. VRING state report/restore
 
 ## 3.3. Kick RARP
