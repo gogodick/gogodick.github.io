@@ -101,4 +101,8 @@ void vhost_dev_stop(struct vhost_dev *hdev, VirtIODevice *vdev)
     hdev->vdev = NULL;
 }
 ```
+Calling sequence is: vhost_dev_stop()->vhost_virtqueue_stop()->vhost_get_vring_base()
 
+vhost_get_vring_base() is vhost backend ops, and it's used to notify backend to stop.
+
+And when backend is stopped, vhost_log_put() is used to synchronize dirty page memory.
