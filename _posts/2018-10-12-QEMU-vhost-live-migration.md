@@ -61,3 +61,18 @@ typedef struct VhostOps {
 ```
 Live migration needs to use some of these ops.
 # 2. Live migration
+* At first, QEMU needs to specify memory address for vhost backend to write dirty page bitmap.
+
+Calling sequence is: vhost_dev_start()->vhost_set_log_base()
+
+And vhost_set_log_base() is vhost backend ops.
+
+* And then, QEMU needs to notify vhost backend to start writing dirty page bitmap.
+
+Calling sequence is: vhost_log_global_start()->vhost_migration_log()->vhost_dev_set_log()->vhost_dev_set_features()->vhost_set_features()
+
+And vhost_set_features() is vhost backend ops.
+
+* At last, QEMU needs to stop vhost backend and synchronize dirty page memory.
+
+
