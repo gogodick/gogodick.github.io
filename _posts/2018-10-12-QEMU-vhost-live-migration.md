@@ -75,4 +75,30 @@ And vhost_set_features() is vhost backend ops.
 
 * At last, QEMU needs to stop vhost backend and synchronize dirty page memory.
 
+Please refer to vhost_dev_stop():
+```
+/* Host notifiers must be enabled at this point. */
+void vhost_dev_stop(struct vhost_dev *hdev, VirtIODevice *vdev)
+{
+    int i;
+
+    /* should only be called after backend is connected */
+    assert(hdev->vhost_ops);
+
+    for (i = 0; i < hdev->nvqs; ++i) {
+        vhost_virtqueue_stop(hdev,
+                             vdev,
+                             hdev->vqs + i,
+                             hdev->vq_index + i);
+    }
+
+    if (vhost_dev_has_iommu(hdev)) {
+        hdev->vhost_ops->vhost_set_iotlb_callback(hdev, false);
+        memory_listener_unregister(&hdev->iommu_listener);
+    }
+    vhost_log_put(hdev, true);
+    hdev->started = false;
+    hdev->vdev = NULL;
+}
+```
 
