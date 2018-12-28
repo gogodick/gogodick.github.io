@@ -158,12 +158,104 @@ Submits a read I/O to the specified NVMe namespace.
       * nvme_rdma_qpair_submit_request()
 
 ## 2.7. spdk_nvme_ns_cmd_write()
+```
+int spdk_nvme_ns_cmd_write (struct spdk_nvme_ns * ns,
+struct spdk_nvme_qpair * qpair,
+void * payload,
+uint64_t lba,
+uint32_t lba_count,
+spdk_nvme_cmd_cb cb_fn,
+void * cb_arg,
+uint32_t io_flags 
+)
+```
+Submit a write I/O to the specified NVMe namespace.
+* Construct payload with payload.
+* _nvme_ns_cmd_rw() with SPDK_NVME_OPC_WRITE.
+   * nvme_allocate_request()
+   * If this controller defines a stripe boundary and this I/O spans a stripe boundary, split the request into multiple requests and submit each separately to hardware.
+   * _nvme_ns_cmd_setup_request()
+* nvme_qpair_submit_request()
+   * If this is a split (parent) request. Submit all of the children but not the parent request itself, since the parent is the original unsplit request.
+   * queue those requests which matches with opcode in err_cmd list
+   * nvme_transport_qpair_submit_request()
+      * nvme_pcie_qpair_submit_request()
+      * nvme_rdma_qpair_submit_request()
 
 ## 2.8. spdk_nvme_ns_cmd_writev()
+```
+int spdk_nvme_ns_cmd_writev (struct spdk_nvme_ns * ns,
+struct spdk_nvme_qpair * qpair,
+uint64_t lba,
+uint32_t lba_count,
+spdk_nvme_cmd_cb cb_fn,
+void * cb_arg,
+uint32_t io_flags,
+spdk_nvme_req_reset_sgl_cb reset_sgl_fn,
+spdk_nvme_req_next_sge_cb next_sge_fn 
+)
+```
+Submit a write I/O to the specified NVMe namespace.
+* Construct payload with reset_sgl_fn, next_sge_fn and cb_arg.
+* _nvme_ns_cmd_rw() with SPDK_NVME_OPC_WRITE.
+   * nvme_allocate_request()
+   * If this controller defines a stripe boundary and this I/O spans a stripe boundary, split the request into multiple requests and submit each separately to hardware.
+   * _nvme_ns_cmd_setup_request()
+* nvme_qpair_submit_request()
+   * If this is a split (parent) request. Submit all of the children but not the parent request itself, since the parent is the original unsplit request.
+   * queue those requests which matches with opcode in err_cmd list
+   * nvme_transport_qpair_submit_request()
+      * nvme_pcie_qpair_submit_request()
+      * nvme_rdma_qpair_submit_request()
 
 ## 2.9. spdk_nvme_ns_cmd_write_with_md()
+```
+int spdk_nvme_ns_cmd_write_with_md (struct spdk_nvme_ns * ns,
+struct spdk_nvme_qpair * qpair,
+void * payload,
+void * metadata,
+uint64_t lba,
+uint32_t lba_count,
+spdk_nvme_cmd_cb cb_fn,
+void * cb_arg,
+uint32_t io_flags,
+uint16_t apptag_mask,
+uint16_t apptag 
+)
+```
+Submit a write I/O to the specified NVMe namespace.
+* Construct payload with payload and metadata.
+* _nvme_ns_cmd_rw() with SPDK_NVME_OPC_WRITE, apptag_mask and apptag.
+   * nvme_allocate_request()
+   * If this controller defines a stripe boundary and this I/O spans a stripe boundary, split the request into multiple requests and submit each separately to hardware.
+   * _nvme_ns_cmd_setup_request()
+* nvme_qpair_submit_request()
+   * If this is a split (parent) request. Submit all of the children but not the parent request itself, since the parent is the original unsplit request.
+   * queue those requests which matches with opcode in err_cmd list
+   * nvme_transport_qpair_submit_request()
+      * nvme_pcie_qpair_submit_request()
+      * nvme_rdma_qpair_submit_request()
 
 ## 2.10. spdk_nvme_ns_cmd_write_zeroes()
+```
+int spdk_nvme_ns_cmd_write_zeroes (struct spdk_nvme_ns * ns,
+struct spdk_nvme_qpair * qpair,
+uint64_t lba,
+uint32_t lba_count,
+spdk_nvme_cmd_cb cb_fn,
+void * cb_arg,
+uint32_t io_flags 
+)
+```
+Submit a write zeroes I/O to the specified NVMe namespace.
+* nvme_allocate_request_null()
+* Command opcode is SPDK_NVME_OPC_WRITE_ZEROES.
+* nvme_qpair_submit_request()
+   * If this is a split (parent) request. Submit all of the children but not the parent request itself, since the parent is the original unsplit request.
+   * queue those requests which matches with opcode in err_cmd list
+   * nvme_transport_qpair_submit_request()
+      * nvme_pcie_qpair_submit_request()
+      * nvme_rdma_qpair_submit_request()
 
 ## 2.11. spdk_nvme_ns_cmd_dataset_management()
 
