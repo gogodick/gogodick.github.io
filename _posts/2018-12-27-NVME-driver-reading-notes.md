@@ -91,3 +91,16 @@ uint32_t io_flags
 )
 ```
 Submits a read I/O to the specified NVMe namespace.
+* Construct payload with payload.
+* _nvme_ns_cmd_rw() with SPDK_NVME_OPC_READ.
+   * nvme_allocate_request()
+   * If this controller defines a stripe boundary and this I/O spans a stripe boundary, split the request into multiple requests and submit each separately to hardware.
+   * _nvme_ns_cmd_setup_request()
+* nvme_qpair_submit_request()
+   * If this is a split (parent) request. Submit all of the children but not the parent request itself, since the parent is the original unsplit request.
+   * queue those requests which matches with opcode in err_cmd list
+   * nvme_transport_qpair_submit_request()
+      * nvme_pcie_qpair_submit_request()
+      * nvme_rdma_qpair_submit_request()
+
+
