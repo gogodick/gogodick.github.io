@@ -258,12 +258,83 @@ Submit a write zeroes I/O to the specified NVMe namespace.
       * nvme_rdma_qpair_submit_request()
 
 ## 2.11. spdk_nvme_ns_cmd_dataset_management()
+```
+int spdk_nvme_ns_cmd_dataset_management (struct spdk_nvme_ns * ns,
+struct spdk_nvme_qpair * qpair,
+uint32_t type,
+const struct spdk_nvme_dsm_range * ranges,
+uint16_t num_ranges,
+spdk_nvme_cmd_cb cb_fn,
+void * cb_arg 
+)
+
+/** Bit set of attributes for DATASET MANAGEMENT commands. */
+enum spdk_nvme_dsm_attribute {
+	SPDK_NVME_DSM_ATTR_INTEGRAL_READ		= 0x1,
+	SPDK_NVME_DSM_ATTR_INTEGRAL_WRITE		= 0x2,
+	SPDK_NVME_DSM_ATTR_DEALLOCATE			= 0x4,
+};
+```
+Submit a data set management request to the specified NVMe namespace.
+* nvme_allocate_request_user_copy()
+   * Allocate a request as well as a DMA-capable buffer to copy to/from the user's buffer.
+* Command opcode is SPDK_NVME_OPC_DATASET_MANAGEMENT.
+* nvme_qpair_submit_request()
+   * If this is a split (parent) request. Submit all of the children but not the parent request itself, since the parent is the original unsplit request.
+   * queue those requests which matches with opcode in err_cmd list
+   * nvme_transport_qpair_submit_request()
+      * nvme_pcie_qpair_submit_request()
+      * nvme_rdma_qpair_submit_request()
 
 ## 2.12. spdk_nvme_ns_cmd_flush()
+```
+int spdk_nvme_ns_cmd_flush (struct spdk_nvme_ns * ns,
+struct spdk_nvme_qpair * qpair,
+spdk_nvme_cmd_cb cb_fn,
+void * cb_arg 
+)
+```
+Submit a flush request to the specified NVMe namespace.
+* nvme_allocate_request_null()
+* Command opcode is SPDK_NVME_OPC_FLUSH.
+* nvme_qpair_submit_request()
+   * If this is a split (parent) request. Submit all of the children but not the parent request itself, since the parent is the original unsplit request.
+   * queue those requests which matches with opcode in err_cmd list
+   * nvme_transport_qpair_submit_request()
+      * nvme_pcie_qpair_submit_request()
+      * nvme_rdma_qpair_submit_request()
 
 ## 2.13. spdk_nvme_qpair_process_completions()
+```
+int32_t spdk_nvme_qpair_process_completions (struct spdk_nvme_qpair * qpair,
+uint32_t max_completions 
+)
+```
+Process any outstanding completions for I/O submitted on a queue pair.
+* error injection for those queued error requests.
+* nvme_transport_qpair_process_completions()
+   * nvme_pcie_qpair_process_completions()
+   * nvme_rdma_qpair_process_completions()
+* spdk_nvme_ctrlr_free_io_qpair()
+   * A request to delete this qpair was made in the context of this completion routine - so it is safe to delete it now.
 
 ## 2.14. spdk_nvme_ctrlr_cmd_admin_raw()
+```
+int spdk_nvme_ctrlr_cmd_admin_raw (struct spdk_nvme_ctrlr * ctrlr,
+struct spdk_nvme_cmd * cmd,
+void * buf,
+uint32_t len,
+spdk_nvme_cmd_cb cb_fn,
+void * cb_arg 
+)
+```
+Send the given admin command to the NVMe controller.
+* nvme_allocate_request_contig()
+      * Construct payload with buffer.
+      * nvme_allocate_request()
+* Memory copy command.
+* nvme_ctrlr_submit_admin_request()
+      * nvme_qpair_submit_request() with adminq.
 
 ## 2.15. spdk_nvme_ctrlr_process_admin_completions()
 
