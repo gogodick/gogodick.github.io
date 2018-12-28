@@ -158,3 +158,24 @@ Submits a read I/O to the specified NVMe namespace.
       * nvme_rdma_qpair_submit_request()
 
 ## 2.7. spdk_nvme_ns_cmd_write()
+
+## 2.8. spdk_nvme_ns_cmd_writev()
+
+## 2.9. spdk_nvme_ns_cmd_write_with_md()
+
+## 2.10. spdk_nvme_ns_cmd_write_zeroes()
+
+## 2.11. spdk_nvme_ns_cmd_dataset_management()
+
+## 2.12. spdk_nvme_ns_cmd_flush()
+
+## 2.13. spdk_nvme_qpair_process_completions()
+
+## 2.14. spdk_nvme_ctrlr_cmd_admin_raw()
+
+## 2.15. spdk_nvme_ctrlr_process_admin_completions()
+
+## 2.16. spdk_nvme_ctrlr_cmd_io_raw()
+
+## 2.17. spdk_nvme_ctrlr_cmd_io_raw_with_md()
+
