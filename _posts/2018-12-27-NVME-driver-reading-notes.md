@@ -33,5 +33,33 @@ Provided for the initial identification and device management commands.
 Created by the host using the Admin QP for read and/or write operations. 
 
 # 2. Public Interface
+## 2.1. spdk_nvme_probe()
+```
+int spdk_nvme_probe (const struct spdk_nvme_transport_id * trid,
+void * cb_ctx,
+spdk_nvme_probe_cb probe_cb,
+spdk_nvme_attach_cb attach_cb,
+spdk_nvme_remove_cb remove_cb 
+)
+```
+Enumerate the bus indicated by the transport ID and attach the userspace NVMe driver to each device found if desired.
+* nvme_driver_init()
+   * The primary process will reserve the shared memory and do the initialization. The secondary process will lookup the existing reserved memory.
+* If the trtype is PCIe or trid is NULL, this will scan the local PCIe bus. If the trtype is RDMA, the traddr and trsvcid must point at the location of an NVMe-oF discovery service.
+* spdk_nvme_probe_internal()
+   * nvme_transport_ctrlr_scan()
+      * nvme_pcie_ctrlr_scan()
+      * nvme_rdma_ctrlr_scan()
+   * For secondary process, search attached controller, call attach_cb() if match.
+   * For primary process, call nvme_init_controllers()
+      * Initialize all new controllers, nvme_ctrlr_process_init()
+      * For NVME_CTRLR_STATE_READY, call attach_cb()
 
-
+## 2.2. spdk_nvme_ctrlr_alloc_io_qpair()
+```
+struct spdk_nvme_qpair* spdk_nvme_ctrlr_alloc_io_qpair (struct spdk_nvme_ctrlr * ctrlr,
+const struct spdk_nvme_io_qpair_opts * opts,
+size_t opts_size 
+)
+```
+Allocate an I/O queue pair (submission and completion queue).
