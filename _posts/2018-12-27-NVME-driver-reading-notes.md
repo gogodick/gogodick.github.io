@@ -330,15 +330,57 @@ void * cb_arg
 ```
 Send the given admin command to the NVMe controller.
 * nvme_allocate_request_contig()
-      * Construct payload with buffer.
-      * nvme_allocate_request()
+   * Construct payload with buffer.
+   * nvme_allocate_request()
 * Memory copy command.
 * nvme_ctrlr_submit_admin_request()
-      * nvme_qpair_submit_request() with adminq.
+   * nvme_qpair_submit_request() with adminq.
 
 ## 2.15. spdk_nvme_ctrlr_process_admin_completions()
+```
+int32_t spdk_nvme_ctrlr_process_admin_completions (struct spdk_nvme_ctrlr * ctrlr)
+```
+Process any outstanding completions for admin commands.
+* nvme_ctrlr_keep_alive()
+   * nvme_allocate_request_null()
+   * Command opcode is SPDK_NVME_OPC_KEEP_ALIVE.
+   * nvme_ctrlr_submit_admin_request()
+      * nvme_qpair_submit_request() with adminq.
+* spdk_nvme_qpair_process_completions() with adminq.
 
 ## 2.16. spdk_nvme_ctrlr_cmd_io_raw()
+```
+int spdk_nvme_ctrlr_cmd_io_raw (struct spdk_nvme_ctrlr * ctrlr,
+struct spdk_nvme_qpair * qpair,
+struct spdk_nvme_cmd * cmd,
+void * buf,
+uint32_t len,
+spdk_nvme_cmd_cb cb_fn,
+void * cb_arg 
+)
+```
+Send the given NVM I/O command to the NVMe controller.
+* nvme_allocate_request_contig()
+   * Construct payload with buffer.
+   * nvme_allocate_request()
+* Memory copy command.
+* nvme_qpair_submit_request()
 
 ## 2.17. spdk_nvme_ctrlr_cmd_io_raw_with_md()
+```
+int spdk_nvme_ctrlr_cmd_io_raw_with_md (struct spdk_nvme_ctrlr * ctrlr,
+struct spdk_nvme_qpair * qpair,
+struct spdk_nvme_cmd * cmd,
+void * buf,
+uint32_t len,
+void * md_buf,
+spdk_nvme_cmd_cb cb_fn,
+void * cb_arg 
+)
+```
+Send the given NVM I/O command with metadata to the NVMe controller.
+* Construct payload with buf and md_buf.
+* nvme_allocate_request()
+* Memory copy command.
+* nvme_qpair_submit_request()
 
