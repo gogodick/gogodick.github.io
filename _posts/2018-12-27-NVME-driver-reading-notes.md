@@ -63,3 +63,31 @@ size_t opts_size
 )
 ```
 Allocate an I/O queue pair (submission and completion queue).
+* Get options, get controller register, and verify.
+* nvme_transport_ctrlr_create_io_qpair()
+   * nvme_pcie_ctrlr_create_io_qpair()
+   * nvme_rdma_ctrlr_create_io_qpair()
+* nvme_ctrlr_proc_add_io_qpair()
+   * Insert qpair to process allocated_io_qpairs.
+
+## 2.3. spdk_nvme_ctrlr_get_ns()
+```
+struct spdk_nvme_ns* spdk_nvme_ctrlr_get_ns (struct spdk_nvme_ctrlr * ctrlr,
+uint32_t ns_id 
+)
+```
+Get a handle to a namespace for the given controller.
+
+## 2.4. spdk_nvme_ns_cmd_read()
+```
+int spdk_nvme_ns_cmd_read (struct spdk_nvme_ns * ns,
+struct spdk_nvme_qpair * qpair,
+void * 	payload,
+uint64_t lba,
+uint32_t lba_count,
+spdk_nvme_cmd_cb cb_fn,
+void * cb_arg,
+uint32_t io_flags 
+)
+```
+Submits a read I/O to the specified NVMe namespace.
