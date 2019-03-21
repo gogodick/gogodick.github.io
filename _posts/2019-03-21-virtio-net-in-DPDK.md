@@ -86,6 +86,30 @@ following table:
 
 |Virtqueue Part|Alignment|Size|
 | ------ | ------ | ------ |
-| Descriptor Table | 16 | 16*(Queue Size) |
-| Available Ring | 2 | 6 + 2*(Queue Size) |
-| Used Ring | 4 | 6 + 8*(Queue Size) |
+|Descriptor Table|16|16*(Queue Size)|
+|Available Ring|2|6 + 2*(Queue Size)|
+|Used Ring|4|6 + 8*(Queue Size)|
+
+When the driver wants to send a buffer to the device, it fills in a slot in the descriptor table (or chains several together), and writes the descriptor index into the available ring. It then notifies the device. When the device has finished a buffer, it writes the descriptor index into the used ring, and sends an interrupt.
+```
+struct vhost_vring_addr {
+	unsigned int index;
+	/* Option flags. */
+	unsigned int flags;
+	/* Flag values: */
+	/* Whether log address is valid. If set enables logging. */
+#define VHOST_VRING_F_LOG 0
+
+	/* Start of array of descriptors (virtually contiguous) */
+	uint64_t desc_user_addr;
+	/* Used structure address. Must be 32 bit aligned */
+	uint64_t used_user_addr;
+	/* Available structure address. Must be 16 bit aligned */
+	uint64_t avail_user_addr;
+	/* Logging support. */
+	/* Log writes to used structure, at offset calculated from specified
+	 * address. Address must be 32 bit aligned.
+	 */
+	uint64_t log_guest_addr;
+};
+```
