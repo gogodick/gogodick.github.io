@@ -113,3 +113,60 @@ struct vhost_vring_addr {
 	uint64_t log_guest_addr;
 };
 ```
+## 2.1. The Virtqueue Descriptor Table
+The descriptor table refers to the buffers the driver is using for the device. addr is a physical address, and the buffers can be chained via next. Each descriptor describes a buffer which is read-only for the device (“device-readable”) or write-only for the device (“device-writable”), but a chain of descriptors can contain both device-readable and device-writable buffers.
+```
+/* VirtIO ring descriptors: 16 bytes.
+ * These can chain together via "next". */
+struct vring_desc {
+	uint64_t addr;  /*  Address (guest-physical). */
+	uint32_t len;   /* Length. */
+	uint16_t flags; /* The flags as indicated above. */
+	uint16_t next;  /* We chain unused descriptors via this. */
+};
+```
+## 2.2. The Virtqueue Available Ring
+The driver uses the available ring to offer buffers to the device: each ring entry refers to the head of a descriptor chain. It is only written by the driver and read by the device.
+idx field indicates where the driver would put the next descriptor entry in the ring (modulo the queue size). This starts at 0, and increases.
+```
+struct vring_avail {
+	uint16_t flags;
+	uint16_t idx;
+	uint16_t ring[0];
+};
+```
+## 2.3. The Virtqueue Used Ring
+The used ring is where the device returns buffers once it is done with them: it is only written to by the device, and read by the driver. Each entry in the ring is a pair: id indicates the head entry of the descriptor chain describing the buffer (this matches an entry placed in the available ring by the guest earlier), and len the total of bytes written into the buffer.
+```
+/* id is a 16bit index. uint32_t is used here for ids for padding reasons. */
+struct vring_used_elem {
+	/* Index of start of used descriptor chain. */
+	uint32_t id;
+	/* Total length of the descriptor chain which was written to. */
+	uint32_t len;
+};
+
+struct vring_used {
+	uint16_t flags;
+	volatile uint16_t idx;
+	struct vring_used_elem ring[0];
+};
+```
+# 3. PCI Device Discovery
+Devices MUST have the PCI Vendor ID 0x1AF4. Devices MUST either have the PCI Device ID calculated by adding 0x1040 to the Virtio Device ID, or have the Transitional PCI Device ID depending on the device type, as follows:
+|Transitional PCI Device ID|Virtio Device|
+| ------ | ------ |
+|0x1000|network card|
+|0x1001|block device|
+|0x1002|memory ballooning (traditional)|
+|0x1003|console|
+|0x1004|SCSI host|
+|0x1005|entropy source|
+|0x1009|9P transport|
+For example, the network card device with the Virtio Device ID 1 has the PCI Device ID 0x1041 or the Transitional PCI Device ID 0x1000.
+```
+/* VirtIO PCI vendor/device ID. */
+#define VIRTIO_PCI_VENDORID     0x1AF4
+#define VIRTIO_PCI_LEGACY_DEVICEID_NET 0x1000
+#define VIRTIO_PCI_MODERN_DEVICEID_NET 0x1041
+```
