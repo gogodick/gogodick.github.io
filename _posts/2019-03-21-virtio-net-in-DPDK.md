@@ -92,26 +92,38 @@ following table:
 
 When the driver wants to send a buffer to the device, it fills in a slot in the descriptor table (or chains several together), and writes the descriptor index into the available ring. It then notifies the device. When the device has finished a buffer, it writes the descriptor index into the used ring, and sends an interrupt.
 ```
-struct vhost_vring_addr {
-	unsigned int index;
-	/* Option flags. */
-	unsigned int flags;
-	/* Flag values: */
-	/* Whether log address is valid. If set enables logging. */
-#define VHOST_VRING_F_LOG 0
-
-	/* Start of array of descriptors (virtually contiguous) */
-	uint64_t desc_user_addr;
-	/* Used structure address. Must be 32 bit aligned */
-	uint64_t used_user_addr;
-	/* Available structure address. Must be 16 bit aligned */
-	uint64_t avail_user_addr;
-	/* Logging support. */
-	/* Log writes to used structure, at offset calculated from specified
-	 * address. Address must be 32 bit aligned.
-	 */
-	uint64_t log_guest_addr;
+struct vring {
+	unsigned int num;
+	struct vring_desc  *desc;
+	struct vring_avail *avail;
+	struct vring_used  *used;
 };
+
+/* The standard layout for the ring is a continuous chunk of memory which
+ * looks like this.  We assume num is a power of 2.
+ *
+ * struct vring {
+ *      // The actual descriptors (16 bytes each)
+ *      struct vring_desc desc[num];
+ *
+ *      // A ring of available descriptor heads with free-running index.
+ *      __u16 avail_flags;
+ *      __u16 avail_idx;
+ *      __u16 available[num];
+ *      __u16 used_event_idx;
+ *
+ *      // Padding to the next align boundary.
+ *      char pad[];
+ *
+ *      // A ring of used descriptor heads with free-running index.
+ *      __u16 used_flags;
+ *      __u16 used_idx;
+ *      struct vring_used_elem used[num];
+ *      __u16 avail_event_idx;
+ * };
+ *
+ * NOTE: for VirtIO PCI, align is 4096.
+ */
 ```
 ## 2.1. The Virtqueue Descriptor Table
 The descriptor table refers to the buffers the driver is using for the device. addr is a physical address, and the buffers can be chained via next. Each descriptor describes a buffer which is read-only for the device (“device-readable”) or write-only for the device (“device-writable”), but a chain of descriptors can contain both device-readable and device-writable buffers.
