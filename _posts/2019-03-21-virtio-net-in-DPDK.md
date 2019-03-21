@@ -154,6 +154,7 @@ struct vring_used {
 ```
 # 3. PCI Device Discovery
 Devices MUST have the PCI Vendor ID 0x1AF4. Devices MUST either have the PCI Device ID calculated by adding 0x1040 to the Virtio Device ID, or have the Transitional PCI Device ID depending on the device type, as follows:
+
 |Transitional PCI Device ID|Virtio Device|
 | ------ | ------ |
 |0x1000|network card|
