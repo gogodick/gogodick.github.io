@@ -15,7 +15,7 @@ This is not a node.
 ## 1.2. Interface
 Initial function is lb_api_init().
 
-And support below API message: 
+And support below API messages: 
 ```
 /* List of message types that this plugin understands */
 #define foreach_lb_plugin_api_msg            \
@@ -64,4 +64,8 @@ lb flush vip <prefix>
 ```
 test lb flowtable flush
 ```
+
+# 3. lb_test
+## 3.1. Introduction
+This is not a node.
 
