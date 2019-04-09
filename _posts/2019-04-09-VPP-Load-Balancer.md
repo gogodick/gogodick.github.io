@@ -10,4 +10,17 @@ mathjax: true
 
 # 1. api
 
+## 1.1. Interface
+Initial function is lb_api_init().
+
+And support below API message: 
+```
+/* List of message types that this plugin understands */
+#define foreach_lb_plugin_api_msg            \
+_(LB_CONF, lb_conf)                          \
+_(LB_ADD_DEL_VIP, lb_add_del_vip)            \
+_(LB_ADD_DEL_AS, lb_add_del_as)              \
+_(LB_FLUSH_VIP, lb_flush_vip)
+```
+
 
