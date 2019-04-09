@@ -38,5 +38,30 @@ lb vip <prefix>
 [type (nodeport|clusterip) target_port <n>] 
 [new_len <n>] [del]
 ```
-
+```
+lb as <vip-prefix> [protocol (tcp|udp) port <n>]
+ [<address> [<address> [...]]] [del] [flush]
+```
+```
+lb conf [ip4-src-address <addr>] [ip6-src-address <addr>] [buckets <n>] [timeout <s>]
+```
+```
+show lb
+```
+```
+show lb vips [verbose]
+```
+```
+lb set interface nat4 in <intfc> [del]
+```
+```
+lb set interface nat6 in <intfc> [del]
+```
+```
+lb flush vip <prefix> 
+[protocol (tcp|udp) port <n>]
+```
+```
+test lb flowtable flush
+```
 
