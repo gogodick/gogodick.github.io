@@ -69,3 +69,11 @@ test lb flowtable flush
 ## 3.1. Introduction
 This is not a node.
 
+# 4. lb
+## 4.1. Introduction
+This is not a node, and it registers load balancer plugin.
+
+## 4.2. Interface
+Initial function is lb_init()
+
+
