@@ -10,7 +10,7 @@ mathjax: true
 
 # 1. api
 ## 1.1. Introduction
-This is not a node.
+This module is not a node.
 
 ## 1.2. Interface
 Initial function is lb_api_init().
@@ -27,7 +27,7 @@ _(LB_FLUSH_VIP, lb_flush_vip)
 
 # 2. cli
 ## 2.1. Introduction
-This is not a node.
+This module is not a node.
 
 ## 2.2. Command
 ```
@@ -71,9 +71,15 @@ This is not a node.
 
 # 4. lb
 ## 4.1. Introduction
-This is not a node, and it registers load balancer plugin.
+This module is not a node, and it registers load balancer plugin.
 
 ## 4.2. Interface
 Initial function is lb_init()
 
+# 5. node
 
+
+# 6. util
+
+## 6.1. Introduction
+This module is not a node.
