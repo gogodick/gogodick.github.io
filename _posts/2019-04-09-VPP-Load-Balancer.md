@@ -99,21 +99,52 @@ There are 16 nodes:
 
 ## 5.2. Detail
 ### 5.2.1. lb6_gre6_node
+This node is using lb_node_fn(), is_input_v4 is 0, encap_type is LB_ENCAP_TYPE_GRE6, per_port_vip is 0.
+
 ### 5.2.2. lb6_gre4_node
+This node is using lb_node_fn(), is_input_v4 is 0, encap_type is LB_ENCAP_TYPE_GRE4, per_port_vip is 0.
+
 ### 5.2.3. lb4_gre6_node
+This node is using lb_node_fn(), is_input_v4 is 1, encap_type is LB_ENCAP_TYPE_GRE6, per_port_vip is 0.
+
 ### 5.2.4. lb4_gre4_node
+This node is using lb_node_fn(), is_input_v4 is 1, encap_type is LB_ENCAP_TYPE_GRE4, per_port_vip is 0.
+
 ### 5.2.5. lb6_gre6_port_node
+This node is using lb_node_fn(), is_input_v4 is 0, encap_type is LB_ENCAP_TYPE_GRE6, per_port_vip is 1.
+
 ### 5.2.6. lb6_gre4_port_node
+This node is using lb_node_fn(), is_input_v4 is 0, encap_type is LB_ENCAP_TYPE_GRE4, per_port_vip is 1.
+
 ### 5.2.7. lb4_gre6_port_node
+This node is using lb_node_fn(), is_input_v4 is 1, encap_type is LB_ENCAP_TYPE_GRE6, per_port_vip is 1.
+
 ### 5.2.8. lb4_gre4_port_node
+This node is using lb_node_fn(), is_input_v4 is 1, encap_type is LB_ENCAP_TYPE_GRE4, per_port_vip is 1.
+
 ### 5.2.9. lb4_l3dsr_port_node
+This node is using lb_node_fn(), is_input_v4 is 1, encap_type is LB_ENCAP_TYPE_L3DSR, per_port_vip is 1.
+
 ### 5.2.10. lb4_l3dsr_node
+This node is using lb_node_fn(), is_input_v4 is 1, encap_type is LB_ENCAP_TYPE_L3DSR, per_port_vip is 0.
+
 ### 5.2.11. lb6_nat6_port_node
+This node is using lb_node_fn(), is_input_v4 is 0, encap_type is LB_ENCAP_TYPE_NAT6, per_port_vip is 1.
+
 ### 5.2.12. lb4_nat4_port_node
+This node is using lb_node_fn(), is_input_v4 is 1, encap_type is LB_ENCAP_TYPE_NAT4, per_port_vip is 1.
+
 ### 5.2.13. lb4_nodeport_node
+This node is using lb_nodeport_node_fn(), is_input_v4 is 1.
+
 ### 5.2.14. lb6_nodeport_node
+This node is using lb_nodeport_node_fn(), is_input_v4 is 0.
+
 ### 5.2.15. lb_nat4_in2out_node
+This node is using lb_nat_in2out_node_fn(), is_nat4 is 1.
+
 ### 5.2.16. lb_nat6_in2out_node
+This node is using lb_nat_in2out_node_fn(), is_nat4 is 0.
 
 # 6. util
 
