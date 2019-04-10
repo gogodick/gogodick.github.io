@@ -101,6 +101,47 @@ There are 16 nodes:
 ### 5.2.1. lb6_gre6_node
 This node is using lb_node_fn(), is_input_v4 is 0, encap_type is LB_ENCAP_TYPE_GRE6, per_port_vip is 0.
 
+* Call lb_node_get_hash() to compute hash value.
+* If input is IPv4, get IPv4 header and header length.
+* If input is IPv6, get IPv6 header and header length.
+* Call lb_hash_get() to search load balancer hash table.
+* If found an existing entry, do nothing.
+* If there is an available slot for a new flow.
+   * Update reference counter.
+   * Call lb_hash_put() to add hash entry.
+* If could not store new entry in the table, use conflict entry.
+* If encap_type is LB_ENCAP_TYPE_GRE4.
+   * Source address is load balancer source address.
+   * Destination address is application server address.
+   * Update some other field.
+   * IP protocol is IP_PROTOCOL_GRE.
+   * Update IP checksum.
+   * protocol is 0x0800.
+* If encap_type is LB_ENCAP_TYPE_GRE6.
+   * Source address is load balancer source address.
+   * Destination address is application server address.
+   * Update some other field.
+   * IP protocol is IP_PROTOCOL_GRE.
+   * protocol is 0x86DD.
+* If encap_type is LB_ENCAP_TYPE_L3DSR.
+   * Replace destination address with application server address.
+   * Move dscp to tos.
+   * Update IP checksum.
+   * Recomputing L4 checksum after dst-IP modifying.
+* encap_type is LB_ENCAP_TYPE_NAT4.
+   * If is_input_v4 is 1.
+      * Replace destination address with application server address.
+      * Update IP checksum.
+      * If IP protocol is UDP.
+         * Replace destination port with target port.
+         * Update UDP checksum.
+* encap_type is LB_ENCAP_TYPE_NAT6.
+   * If is_input_v4 is 0.
+      * Replace destination address with application server address.
+      * If IP protocol is UDP.
+         * Replace destination port with target port.
+         * Update UDP checksum.
+
 ### 5.2.2. lb6_gre4_node
 This node is using lb_node_fn(), is_input_v4 is 0, encap_type is LB_ENCAP_TYPE_GRE4, per_port_vip is 0.
 
