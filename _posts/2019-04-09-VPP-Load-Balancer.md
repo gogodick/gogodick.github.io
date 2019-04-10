@@ -73,6 +73,8 @@ This is not a node.
 ## 4.1. Introduction
 This module is not a node, and it registers load balancer plugin.
 
+There is garbage collection mechanism to remove entry without reference.
+
 ## 4.2. Interface
 Initial function is lb_init()
 
@@ -126,7 +128,7 @@ This node is using lb_node_fn(), is_input_v4 is 0, encap_type is LB_ENCAP_TYPE_G
    * protocol is 0x86DD.
 * If encap_type is LB_ENCAP_TYPE_L3DSR.
    * Replace destination address with application server address.
-   * Move dscp to tos.
+   * Replace tos with VIP dscp value.
    * Update IP checksum.
    * Recomputing L4 checksum after dst-IP modifying.
 * encap_type is LB_ENCAP_TYPE_NAT4.
