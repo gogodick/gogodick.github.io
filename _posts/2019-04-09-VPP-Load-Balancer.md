@@ -105,6 +105,7 @@ This node is using lb_node_fn(), is_input_v4 is 0, encap_type is LB_ENCAP_TYPE_G
 * If input is IPv4, get IPv4 header and header length.
 * If input is IPv6, get IPv6 header and header length.
 * Call lb_hash_get() to search load balancer hash table.
+   * timeout entry will be taken here.
 * If found an existing entry, do nothing.
 * If there is an available slot for a new flow.
    * Update reference counter.
@@ -176,9 +177,13 @@ This node is using lb_node_fn(), is_input_v4 is 0, encap_type is LB_ENCAP_TYPE_N
 This node is using lb_node_fn(), is_input_v4 is 1, encap_type is LB_ENCAP_TYPE_NAT4, per_port_vip is 1.
 
 ### 5.2.13. lb4_nodeport_node
+This node is used before lb4-nat4-port.
+
 This node is using lb_nodeport_node_fn(), is_input_v4 is 1.
 
 ### 5.2.14. lb6_nodeport_node
+This node is used before lb6-nat6-port.
+
 This node is using lb_nodeport_node_fn(), is_input_v4 is 0.
 
 ### 5.2.15. lb_nat4_in2out_node
