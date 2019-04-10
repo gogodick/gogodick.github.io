@@ -181,15 +181,42 @@ This node is used before lb4-nat4-port.
 
 This node is using lb_nodeport_node_fn(), is_input_v4 is 1.
 
+* If is_input_v4 is 1, get IPv4 header and UDP header.
+* If is_input_v4 is 0, get IPv6 header and UDP header.
+* Call hash_get_mem() to get hash entry.
+   * Key is UDP destination port.
+* Enqueue to next.
+
 ### 5.2.14. lb6_nodeport_node
 This node is used before lb6-nat6-port.
 
 This node is using lb_nodeport_node_fn(), is_input_v4 is 0.
 
 ### 5.2.15. lb_nat4_in2out_node
+This node is used before ip4-lookup.
+
 This node is using lb_nat_in2out_node_fn(), is_nat4 is 1.
 
+* If is_nat4 is 1.
+   * Call lb_nat44_mapping_match() to get mapping.
+      * Search mapping_by_as4 table.
+   * Replace source address and update IP checksum.
+   * If IP protocol is TCP.
+      * Replace source port and update TCP checksum.
+   * If IP protocol is UDP.
+      * Replace source port and update UDP checksum.
+* If is_nat4 is 0.
+   * Call lb_nat66_mapping_match() to get mapping.
+      * Search mapping_by_as6 table.
+   * Replace source address.
+   * If IP protocol is TCP.
+      * Replace source port and update TCP checksum.
+   * If IP protocol is UDP.
+      * Replace source port and update UDP checksum.
+
 ### 5.2.16. lb_nat6_in2out_node
+This node is used before ip6-lookup.
+
 This node is using lb_nat_in2out_node_fn(), is_nat4 is 0.
 
 # 6. util
