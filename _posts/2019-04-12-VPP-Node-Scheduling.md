@@ -14,5 +14,12 @@ VPP support 2 kinds of thread: main thread and worker thread.
 Calling sequence is thread0()->vlib_main()->vlib_main_loop()->vlib_main_or_worker_loop().
 
 # 1.2. Worker thread
+Calling sequence is vlib_worker_thread_fn()->vlib_worker_loop()->vlib_main_or_worker_loop().
+
+# 1.3. Thread synchronization
+Please refer to below functions:
+* vlib_worker_thread_barrier_check()
+* vlib_worker_thread_barrier_sync()
+* vlib_worker_thread_barrier_release()
 
 # 2. Node
