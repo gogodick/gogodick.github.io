@@ -44,22 +44,22 @@ Nodes which input data into the processing graph. Input nodes are called for eac
 
 These nodes are invoked in main thread and worker thread.
 ```
-	cpu_time_now = dispatch_node (vm, n,
-				      VLIB_NODE_TYPE_INPUT,
-				      VLIB_NODE_STATE_POLLING,
-				      /* frame */ 0,
-				      cpu_time_now);
+cpu_time_now = dispatch_node (vm, n,
+			      VLIB_NODE_TYPE_INPUT,
+			      VLIB_NODE_STATE_POLLING,
+			      /* frame */ 0,
+			      cpu_time_now);
 ```
 ## 2.3. VLIB_NODE_TYPE_PRE_INPUT
 Nodes to be called before all input nodes. Used, for example, to clean out driver TX rings before processing input.
 
 These nodes are invoked in main thread and worker thread.
 ```
-	cpu_time_now = dispatch_node (vm, n,
-				      VLIB_NODE_TYPE_PRE_INPUT,
-				      VLIB_NODE_STATE_POLLING,
-				      /* frame */ 0,
-				      cpu_time_now);
+cpu_time_now = dispatch_node (vm, n,
+			      VLIB_NODE_TYPE_PRE_INPUT,
+			      VLIB_NODE_STATE_POLLING,
+			      /* frame */ 0,
+			      cpu_time_now);
 ```
 
 ## 2.4. VLIB_NODE_TYPE_PROCESS
@@ -67,10 +67,9 @@ These nodes are invoked in main thread and worker thread.
 
 These nodes are invoked in main thread.
 ```
-	cpu_time_now = dispatch_process (vm, nm->processes[i], /* frame */ 0,
-					 cpu_time_now);
+cpu_time_now = dispatch_process (vm, nm->processes[i], /* frame */ 0,
+				 cpu_time_now);
 ```
 ```
-	dispatch_suspended_process (vm, di, cpu_time_now);
+dispatch_suspended_process (vm, di, cpu_time_now);
 ```
-
